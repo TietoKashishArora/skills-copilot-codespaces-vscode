@@ -1,23 +1,33 @@
 //create a web server
-var express = require('express');
-var app = express();
-var bodyParser = require('body-parser');
-var mongoose = require('mongoose');
+const express = require('express');
+const app = express();
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+const Comment = require('./models/comment');
+const Post = require('./models/post');
+const seedDB = require('./seeds');
 
-//connect to mongoose
-mongoose.connect('mongodb://localhost:27017/recipe');
-var db = mongoose.connection;
+// seedDB();
 
-//import the model
-var Comment = require('./models/comment');
+//connect to mongodb
+mongoose.connect('mongodb://localhost:27017/yelp_camp_v3', { useNewUrlParser: true });
 
-//use body parser
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+app.set('view engine', 'ejs');
 
-//define the port
-var port = process.env.PORT || 8080;
+//Landing page
+app.get('/', (req, res) => {
+    res.render('landing');
+});
 
-//create a router
-var router = express.Router()
-
+//INDEX - show all campgrounds
+app.get('/campgrounds', (req, res) => {
+    //get all campgrounds from DB
+    Post.find({}, (err, allPosts) => {
+        if (err) {
+            console.log(err);
+        } else {
+            res.render('campgrounds/index', { posts: allPosts });
+        }
+    });
+});
